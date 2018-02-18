@@ -1,26 +1,42 @@
-let particles = [];
-let grav;
+let movers = [];
 
-function setup () {
-    createCanvas(window.windowWidth, window.windowHeight, P2D);
-    angleMode(DEGREES); 
-    stroke(255);
-    grav = createVector(-0.001,-0.01);
+let attractor;
+
+function setup() {
+  createCanvas(640, 360);
+  for (let i = 0; i < 10; i++) {
+    movers[i] = new Mover(random(0.001, 0.2), random(width), random(height));
+  }
+  attractor = new Attractor();
 }
 
+function draw() {
+  background(50);
 
-function draw () {
-    background(0);
-    fill(255);
-    textSize(18);
-    text("Draw stars with your mouse!", 50,50);
-    if(mouseIsPressed){
-        particles.push(new particle(mouseX, mouseY, random(0.01,0.5),random(45)));
-    }
-    for ( var i = 0; i < particles.length; i++){
-        particles[i].display();
-        particles[i].update();
-        particles[i].applyForce(grav);
-        particles[i].edges();
-    }
+  attractor.display();
+
+  for (let i = 0; i < movers.length; i++) {
+    let force = attractor.calculateAttraction(movers[i]);
+    movers[i].applyForce(force);
+
+    movers[i].update();
+    movers[i].display();
+  }
+}
+
+function mouseMoved() {
+  attractor.handleHover(mouseX, mouseY);
+}
+
+function mousePressed() {
+  attractor.handlePress(mouseX, mouseY);
+}
+
+function mouseDragged() {
+  attractor.handleHover(mouseX, mouseY);
+  attractor.handleDrag(mouseX, mouseY);
+}
+
+function mouseReleased() {
+  attractor.stopDragging();
 }
